@@ -3,13 +3,13 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-public class Janela extends JPanel {
+public class Tabuleiro extends JPanel {
    private final int _LARGURA;
    private final int _ALTURA;
 
-   public Janela(int larguraJanela, int alturaJanela) {
-      _LARGURA = larguraJanela;
-      _ALTURA = alturaJanela;
+   public Tabuleiro(int largura, int altura) {
+      _LARGURA = largura;
+      _ALTURA = altura;
 
       setPreferredSize(new Dimension(_LARGURA, _ALTURA));
       setBackground(Color.BLACK);
