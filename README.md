@@ -1,1 +1,1 @@
-Jogo de xadrez
+Tema do projeto: Jogo "Snake"
