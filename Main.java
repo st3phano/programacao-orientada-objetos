@@ -12,9 +12,11 @@ public class Main {
       frame.setLocationRelativeTo(null);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-      var tabuleiro = new Tabuleiro(LARGURA_JFRAME, ALTURA_JFRAME);
-      frame.add(tabuleiro);
+      var jogo = new Jogo(LARGURA_JFRAME, ALTURA_JFRAME);
+      frame.add(jogo);
       frame.pack();
+
+      jogo.requestFocus();
 
       frame.setVisible(true);
    }

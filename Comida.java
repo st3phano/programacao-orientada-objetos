@@ -1,16 +1,27 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Comida extends Celula {
-   private Color _cor;
+import java.util.Random;
 
-   public Comida(Color cor, int x, int y) {
-      super(x, y);
-      _cor = cor;
+public class Comida extends Celula {
+   private Random _random;
+
+   public Comida(int x, int y, Color cor) {
+      super(x, y, cor);
+
+      _random = new Random();
+   }
+
+   public void sortear_x(int min, int max) {
+      super.set_x(_random.nextInt(min, max));
+   }
+
+   public void sortear_y(int min, int max) {
+      super.set_y(_random.nextInt(min, max));
    }
 
    public void desenhar(Graphics g) {
-      g.setColor(_cor);
+      g.setColor(super.get_cor());
       g.fillOval(super.get_x(), super.get_y(),
             Celula.ARESTA, Celula.ARESTA);
    }
