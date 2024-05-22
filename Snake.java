@@ -1,12 +1,12 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.LinkedList;
 
 public class Snake {
-   private Cabeca _cabeca;
-   private int _velocidade_x;
-   private int _velocidade_y;
+   private Celula _cabeca;
+   private LinkedList<Celula> _corpo;
 
-   public Snake(int x, int y, Color cor_cabeca) {
+   public Snake(Celula ) {
       _cabeca = new Cabeca(x, y, cor_cabeca);
 
       _velocidade_x = 0;

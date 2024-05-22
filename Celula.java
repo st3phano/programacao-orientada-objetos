@@ -47,11 +47,11 @@ public class Celula {
             g.fillOval(get_x(), get_y(), ARESTA, ARESTA);
             break;
          case CABECA_SNAKE:
-            g.setColor(Color.LIGHT_GRAY);
+            g.setColor(Color.DARK_GRAY);
             g.fill3DRect(get_x(), get_y(), ARESTA, ARESTA, true);
             break;
          case CORPO_SNAKE:
-            g.setColor(Color.DARK_GRAY);
+            g.setColor(Color.LIGHT_GRAY);
             g.fill3DRect(get_x(), get_y(), ARESTA, ARESTA, true);
             break;
       }
