@@ -1,37 +1,16 @@
-public class Snake {
-   public static final int TAMANHO_INICIAL = 5;
+public class Comida {
+   private Posicao _posicao;
 
-   private int _tamanho = TAMANHO_INICIAL;
-   private Direcao _direcao = Direcao.DIREITA;
-
-   private final Posicao[] _corpo;
-
-   public Snake(int tamanhoMaximo) {
-      _corpo = new Posicao[tamanhoMaximo];
-   }
-
-   public int getTamanho() {
-      return _tamanho;
+   public Comida(int x, int y) {
+      _posicao = new Posicao(x, y);
    }
 
    public Direcao getDirecao() {
       return _direcao;
    }
 
-   public int getX(int i) {
-      return _corpo[i].getX();
-   }
-
-   public int getY(int i) {
-      return _corpo[i].getY();
-   }
-
    public void setDirecao(Direcao direcao) {
       _direcao = direcao;
-   }
-
-   public void crescer(int quantidade) {
-      _tamanho += quantidade;
    }
 
    public void mover(int quantidade) {
