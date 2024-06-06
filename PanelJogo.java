@@ -20,8 +20,9 @@ public class PanelJogo extends JPanel implements ActionListener {
    private Timer _timer;
    private Random _random;
    private Comida _comida;
-   private Color _corCabecaSnake;
    private Direcao _direcaoSnake;
+
+   private Color _corCabecaSnake;
 
    public PanelJogo(int celulasLado, int ladoCelulaPx, int intervaloAtualizacaoMs)
          throws NumeroNaoPositivoException {
@@ -39,7 +40,6 @@ public class PanelJogo extends JPanel implements ActionListener {
       _timer = new Timer(_INTERVALO_ATUALIZACAO_MS, this);
       _random = new Random();
       posicionarComida();
-      _corCabecaSnake = Color.darkGray;
       _direcaoSnake = _snake.getDirecao();
 
       super.setBackground(Color.white);
@@ -51,37 +51,41 @@ public class PanelJogo extends JPanel implements ActionListener {
          case KeyEvent.VK_DOWN:
             if (_snake.getDirecao() != Direcao.CIMA) {
                _direcaoSnake = Direcao.BAIXO;
+               _timer.start();
             }
             break;
          case KeyEvent.VK_UP:
             if (_snake.getDirecao() != Direcao.BAIXO) {
                _direcaoSnake = Direcao.CIMA;
+               _timer.start();
             }
             break;
          case KeyEvent.VK_RIGHT:
             if (_snake.getDirecao() != Direcao.ESQUERDA) {
                _direcaoSnake = Direcao.DIREITA;
+               _timer.start();
             }
             break;
          case KeyEvent.VK_LEFT:
             if (_snake.getDirecao() != Direcao.DIREITA) {
                _direcaoSnake = Direcao.ESQUERDA;
+               _timer.start();
             }
             break;
       }
    }
 
-   public void alternarRodando() {
-      if (_timer.isRunning()) {
-         _timer.stop();
-      } else {
-         _timer.start();
-      }
+   public void pausarJogo() {
+      _timer.stop();
+      _corCabecaSnake = Color.orange;
+      super.repaint();
    }
 
    public void piscarCabecaSnake(Color cor) {
       _corCabecaSnake = cor;
-      _timer.start();
+      if (!_timer.isRunning()) {
+         super.repaint();
+      }
    }
 
    private void posicionarComida() {
@@ -163,8 +167,8 @@ public class PanelJogo extends JPanel implements ActionListener {
 
       // Cabeça
       g.setColor(_corCabecaSnake);
-      g.fill3DRect(_snake.getX(0), _snake.getY(0), _LADO_CELULA_PX, _LADO_CELULA_PX, _snake.getViva());
       _corCabecaSnake = Color.darkGray;
+      g.fill3DRect(_snake.getX(0), _snake.getY(0), _LADO_CELULA_PX, _LADO_CELULA_PX, _snake.getViva());
    }
 
    public void desenharPontuacao(Graphics g) {

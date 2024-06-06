@@ -45,7 +45,7 @@ public class FrameJogo extends JFrame {
       }
 
       exibirJogo();
-      _panelJogo.repaint();
+      _panelJogo.piscarCabecaSnake(Color.blue);
    }
 
    private class Teclado extends KeyAdapter {
@@ -61,7 +61,7 @@ public class FrameJogo extends JFrame {
                _panelJogo.setDirecaoSnake(keyCode);
                break;
             case KeyEvent.VK_SPACE:
-               _panelJogo.alternarRodando();
+               _panelJogo.pausarJogo();
                break;
             case KeyEvent.VK_S:
                salvarJogo();
