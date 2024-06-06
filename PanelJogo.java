@@ -1,75 +1,104 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import java.util.Random;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class PanelJogo extends JPanel implements ActionListener {
-   public final int _NUM_CELULAS_LADO, _NUM_CELULAS_TOTAL;
-   public final int _LADO_PANEL_PX, _LADO_CELULA_PX;
+   public final int _CELULAS_LADO, _CELULAS_TOTAL;
+   public final int _LADO_CELULA_PX, _LADO_PANEL_PX;
    public final int _INTERVALO_ATUALIZACAO_MS;
 
    private Snake _snake;
-   private int _pontosAcumulados = 0;
-
-   private int _xComida;
-   private int _yComida;
-   private Random _random = new Random();
-
    private Timer _timer;
-   private boolean _rodando = false;
+   private Random _random;
+   private Comida _comida;
+   private Color _corCabecaSnake;
+   private Direcao _direcaoSnake;
 
-   private JFrame _frameJogo;
-
-   public PanelJogo(int numCelulasLado, int ladoCelulaPx, int intervaloAtualizacaoMs, JFrame frameJogo)
+   public PanelJogo(int celulasLado, int ladoCelulaPx, int intervaloAtualizacaoMs)
          throws NumeroNaoPositivoException {
-      if (numCelulasLado < 1 || ladoCelulaPx < 1 || intervaloAtualizacaoMs < 1) {
-         throw new NumeroNaoPositivoException("Argumento inteiro menor que 1");
+      if (celulasLado < 1 || ladoCelulaPx < 1 || intervaloAtualizacaoMs < 1) {
+         throw new NumeroNaoPositivoException();
       }
 
-      _NUM_CELULAS_LADO = numCelulasLado;
-      _NUM_CELULAS_TOTAL = _NUM_CELULAS_LADO * _NUM_CELULAS_LADO;
-      _snake = new Snake(_NUM_CELULAS_TOTAL);
-
+      _CELULAS_LADO = celulasLado;
+      _CELULAS_TOTAL = celulasLado * celulasLado;
       _LADO_CELULA_PX = ladoCelulaPx;
-      _LADO_PANEL_PX = _NUM_CELULAS_LADO * _LADO_CELULA_PX;
-
+      _LADO_PANEL_PX = celulasLado * ladoCelulaPx;
       _INTERVALO_ATUALIZACAO_MS = intervaloAtualizacaoMs;
+
+      _snake = new Snake(_CELULAS_TOTAL);
       _timer = new Timer(_INTERVALO_ATUALIZACAO_MS, this);
+      _random = new Random();
+      posicionarComida();
+      _corCabecaSnake = Color.darkGray;
+      _direcaoSnake = _snake.getDirecao();
 
-      _frameJogo = frameJogo;
-
-      this.setPreferredSize(new Dimension(_LADO_PANEL_PX, _LADO_PANEL_PX));
-      this.setBackground(Color.white);
-      this.setFocusable(true);
-      this.addKeyListener(new Teclado());
+      super.setBackground(Color.white);
+      super.setPreferredSize(new Dimension(_LADO_PANEL_PX, _LADO_PANEL_PX));
    }
 
-   public void iniciarJogo() {
-      posicionarComida();
+   public void setDirecaoSnake(int keyCode) {
+      switch (keyCode) {
+         case KeyEvent.VK_DOWN:
+            if (_snake.getDirecao() != Direcao.CIMA) {
+               _direcaoSnake = Direcao.BAIXO;
+            }
+            break;
+         case KeyEvent.VK_UP:
+            if (_snake.getDirecao() != Direcao.BAIXO) {
+               _direcaoSnake = Direcao.CIMA;
+            }
+            break;
+         case KeyEvent.VK_RIGHT:
+            if (_snake.getDirecao() != Direcao.ESQUERDA) {
+               _direcaoSnake = Direcao.DIREITA;
+            }
+            break;
+         case KeyEvent.VK_LEFT:
+            if (_snake.getDirecao() != Direcao.DIREITA) {
+               _direcaoSnake = Direcao.ESQUERDA;
+            }
+            break;
+      }
+   }
+
+   public void alternarRodando() {
+      if (_timer.isRunning()) {
+         _timer.stop();
+      } else {
+         _timer.start();
+      }
+   }
+
+   public void piscarCabecaSnake(Color cor) {
+      _corCabecaSnake = cor;
       _timer.start();
-      _rodando = true;
    }
 
    private void posicionarComida() {
+      int xComida, yComida;
       do {
-         _xComida = _random.nextInt(_NUM_CELULAS_LADO) * _LADO_CELULA_PX;
-         _yComida = _random.nextInt(_NUM_CELULAS_LADO) * _LADO_CELULA_PX;
-      } while (posicaoDaSnake(_xComida, _yComida));
+         xComida = _random.nextInt(_CELULAS_LADO) * _LADO_CELULA_PX;
+         yComida = _random.nextInt(_CELULAS_LADO) * _LADO_CELULA_PX;
+      } while (serPosicaoDaSnake(xComida, yComida));
+
+      final int pontos = _random.nextInt(1, 10);
+      _comida = new Comida(xComida, yComida, pontos);
    }
 
-   private boolean posicaoDaSnake(int x, int y) {
-      for (int i = 0; i < _tamanhoSnake; ++i) {
-         if (x == _xSnake[i] && y == _ySnake[i]) {
+   private boolean serPosicaoDaSnake(int x, int y) {
+      for (int i = 0; i < _snake.getTamanho(); ++i) {
+         if (x == _snake.getX(i)
+               && y == _snake.getY(i)) {
             return true;
          }
       }
@@ -78,33 +107,33 @@ public class PanelJogo extends JPanel implements ActionListener {
    }
 
    private void verificarColisao() {
-      // Colisão com o próprio corpo
-      for (int i = _tamanhoSnake; i > 0; --i) {
-         if (_xSnake[0] == _xSnake[i]
-               && _ySnake[0] == _ySnake[i])
-            _rodando = false;
+      final int xCabecaSnake = _snake.getX(0);
+      final int yCabecaSnake = _snake.getY(0);
+
+      // Colisão da snake com o próprio corpo
+      for (int i = _snake.getTamanho(); i > 0; --i) {
+         if (xCabecaSnake == _snake.getX(i) && yCabecaSnake == _snake.getY(i)) {
+            _snake.morrer();
+            return;
+         }
       }
 
-      // Colisão com a borda da janela
-      if (_xSnake[0] < 0 || _xSnake[0] > _LADO_PANEL_PX
-            || _ySnake[0] < 0 || _ySnake[0] > _LADO_PANEL_PX) {
-         _rodando = false;
+      // Colisão da snake com a borda da janela
+      if (xCabecaSnake < 0 || xCabecaSnake >= _LADO_PANEL_PX
+            || yCabecaSnake < 0 || yCabecaSnake >= _LADO_PANEL_PX) {
+         _snake.morrer();
       }
 
-      // Colisão com a comida
-      if (_xSnake[0] == _xComida
-            && _ySnake[0] == _yComida) {
-         ++_tamanhoSnake;
-         ++_pontosAcumulados;
+      // Colisão da snake com a comida
+      else if (xCabecaSnake == _comida.getX() && yCabecaSnake == _comida.getY()) {
+         _snake.crescer(_comida.getPontos());
          posicionarComida();
-
-         _frameJogo.setTitle(String.valueOf(_pontosAcumulados));
       }
    }
 
    private void desenharGrade(Graphics g) {
       g.setColor(Color.black);
-      for (int cel = 0; cel < _NUM_CELULAS_LADO; ++cel) {
+      for (int cel = 0; cel < _CELULAS_LADO; ++cel) {
          g.drawLine((cel * _LADO_CELULA_PX), 0, (cel * _LADO_CELULA_PX), _LADO_PANEL_PX);
          g.drawLine(0, (cel * _LADO_CELULA_PX), _LADO_PANEL_PX, (cel * _LADO_CELULA_PX));
       }
@@ -112,19 +141,42 @@ public class PanelJogo extends JPanel implements ActionListener {
 
    private void desenharComida(Graphics g) {
       g.setColor(Color.red);
-      g.fillOval(_xComida, _yComida, _LADO_CELULA_PX, _LADO_CELULA_PX);
+      g.fillOval(_comida.getX(), _comida.getY(), _LADO_CELULA_PX, _LADO_CELULA_PX);
+
+      g.setColor(Color.black);
+      Font font = new Font("Arial", Font.BOLD | Font.ITALIC, _LADO_CELULA_PX / 2);
+      g.setFont(font);
+
+      String pontos = String.valueOf(_comida.getPontos());
+      FontMetrics fontMetrics = getFontMetrics(font);
+      int x = _comida.getX() + ((_LADO_CELULA_PX - fontMetrics.stringWidth(pontos)) / 2);
+      int y = _comida.getY() + ((_LADO_CELULA_PX + font.getSize()) / 2);
+      g.drawString(pontos, x, y);
    }
 
    private void desenharSnake(Graphics g) {
-      // Cabeça
-      g.setColor(Color.darkGray);
-      g.fill3DRect(_snake.getX(0), _snake.getY(0), _LADO_CELULA_PX, _LADO_CELULA_PX, _rodando);
-
       // Corpo
       g.setColor(Color.gray);
       for (int i = 1; i < _snake.getTamanho(); ++i) {
-         g.fill3DRect(_snake.getX(i), _snake.getY(i), _LADO_CELULA_PX, _LADO_CELULA_PX, _rodando);
+         g.fill3DRect(_snake.getX(i), _snake.getY(i), _LADO_CELULA_PX, _LADO_CELULA_PX, _snake.getViva());
       }
+
+      // Cabeça
+      g.setColor(_corCabecaSnake);
+      g.fill3DRect(_snake.getX(0), _snake.getY(0), _LADO_CELULA_PX, _LADO_CELULA_PX, _snake.getViva());
+      _corCabecaSnake = Color.darkGray;
+   }
+
+   public void desenharPontuacao(Graphics g) {
+      g.setColor(Color.blue);
+      Font font = new Font("Arial", Font.BOLD, (_LADO_CELULA_PX * 2));
+      g.setFont(font);
+
+      String pontos = String.valueOf(_snake.getTamanho());
+      FontMetrics fontMetrics = getFontMetrics(font);
+      int x = (_LADO_PANEL_PX - fontMetrics.stringWidth(pontos)) / 2;
+      int y = font.getSize();
+      g.drawString(pontos, x, y);
    }
 
    @Override
@@ -133,45 +185,19 @@ public class PanelJogo extends JPanel implements ActionListener {
       desenharGrade(g);
       desenharComida(g);
       desenharSnake(g);
+      desenharPontuacao(g);
    }
 
    @Override
    public void actionPerformed(ActionEvent e) {
-      if (_rodando) {
+      super.repaint();
+
+      if (_snake.getViva()) {
+         _snake.setDirecao(_direcaoSnake);
          _snake.mover(_LADO_CELULA_PX);
          verificarColisao();
-         repaint();
       } else {
          _timer.stop();
       }
    }
-
-   private class Teclado extends KeyAdapter {
-      @Override
-      public void keyPressed(KeyEvent e) {
-         switch (e.getKeyCode()) {
-            case KeyEvent.VK_DOWN:
-               if (_direcao != Direcao.CIMA) {
-                  _direcao = Direcao.BAIXO;
-               }
-               break;
-            case KeyEvent.VK_UP:
-               if (_direcao != Direcao.BAIXO) {
-                  _direcao = Direcao.CIMA;
-               }
-               break;
-            case KeyEvent.VK_RIGHT:
-               if (_direcao != Direcao.ESQUERDA) {
-                  _direcao = Direcao.DIREITA;
-               }
-               break;
-            case KeyEvent.VK_LEFT:
-               if (_direcao != Direcao.DIREITA) {
-                  _direcao = Direcao.ESQUERDA;
-               }
-               break;
-         }
-      }
-   }
-
 }

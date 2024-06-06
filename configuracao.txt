@@ -1,0 +1,3 @@
+celulas_lado 20
+tamanho_celula 30
+intervalo_atualizacao 125

@@ -1,36 +1,23 @@
-public class Comida {
+import java.io.Serializable;
+
+public class Comida implements Serializable {
    private Posicao _posicao;
+   protected int _pontos;
 
-   public Comida(int x, int y) {
+   public Comida(int x, int y, int pontos) {
       _posicao = new Posicao(x, y);
+      _pontos = pontos;
    }
 
-   public Direcao getDirecao() {
-      return _direcao;
+   public int getX() {
+      return _posicao.getX();
    }
 
-   public void setDirecao(Direcao direcao) {
-      _direcao = direcao;
+   public int getY() {
+      return _posicao.getY();
    }
 
-   public void mover(int quantidade) {
-      for (int i = _tamanho; i > 0; --i) {
-         _corpo[i].setPosicao(_corpo[i - 1]);
-      }
-
-      switch (_direcao) {
-         case Direcao.BAIXO:
-            _corpo[0].moverY(quantidade);
-            break;
-         case Direcao.CIMA:
-            _corpo[0].moverY(-quantidade);
-            break;
-         case Direcao.DIREITA:
-            _corpo[0].moverX(quantidade);
-            break;
-         case Direcao.ESQUERDA:
-            _corpo[0].moverX(-quantidade);
-            break;
-      }
+   public int getPontos() {
+      return _pontos;
    }
 }
