@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 
 public class FrameJogo extends JFrame {
+   private final String _CAMINHO_ARQUIVO_JOGO = "salvo.snake";
    private PanelJogo _panelJogo;
 
    public FrameJogo(int numCelulasLado, int ladoCelulaPx, int intervaloAtualizacaoMs)
@@ -27,7 +28,7 @@ public class FrameJogo extends JFrame {
 
    private void salvarJogo() {
       try {
-         Arquivo.salvarJogo(_panelJogo, "salvo.snake");
+         Arquivo.salvarJogo(_panelJogo, _CAMINHO_ARQUIVO_JOGO);
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -39,9 +40,10 @@ public class FrameJogo extends JFrame {
       remove(_panelJogo);
 
       try {
-         _panelJogo = Arquivo.carregarJogo("salvo.snake");
+         _panelJogo = Arquivo.carregarJogo(_CAMINHO_ARQUIVO_JOGO);
       } catch (Exception e) {
          e.printStackTrace();
+         System.exit(1);
       }
 
       exibirJogo();
